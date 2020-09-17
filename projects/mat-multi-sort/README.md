@@ -12,12 +12,20 @@ To run the demo:
 1.  `clone` the repository
 2. `cd ngx-multi-sort-table`
 3. `npm install`
-4. `ng build multi-sort-table`
+4. `ng build mat-multi-sort`
 5. `ng serve`
 
 ![demo gif](demo.gif)
 
 ## Update News
+### Version 0.1.9
+- **IMPORTANT: This is the last version supporting Angular 8!**
+- fixed readme
+
+### Version 0.1.8
+- several security fixes
+- fixed readme
+
 ### Version 0.1.7
 - removed `<mat-divider></mat-divider>` from `mat-multi-sort-table-settings`.
 
@@ -93,13 +101,20 @@ This is the datasource of the MultiSortTable, it works like the ` MatTableDataSo
 
 ## Example code for the template
 ```html
-<mat-multi-sort-table-settings [tableData]="table" sortToolTip="Sortierreihenfole ändern">
-  <button mat-stroked-button>
-    Spalten bearbeiten &nbsp;
-    <mat-icon>menu</mat-icon>
-  </button>
-</mat-multi-sort-table-settings>
-<table mat-table [dataSource]="table.dataSource" matMultiSort (matSortChange)="table.onSortEvent()">
+<div class="mat-elevation-z8" style="padding: 8px; margin-bottom: 48px;">
+  <mat-checkbox [(ngModel)]="CLIENT_SIDE" (ngModelChange)="initData()">Use client-side sorting and data only (pagnation
+    is disabled, only 25 entires available)</mat-checkbox>
+
+</div>
+
+<div class="mat-elevation-z8" style="padding: 8px;">
+  <mat-multi-sort-table-settings [tableData]="table" sortToolTip="Sortierreihenfole ändern">
+    <button mat-stroked-button>
+      Spalten bearbeiten &nbsp;
+      <mat-icon>menu</mat-icon>
+    </button>
+  </mat-multi-sort-table-settings>
+  <table mat-table [dataSource]="table.dataSource" matMultiSort (matSortChange)="table.onSortEvent()">
 
     <!-- Create all your columns with *ngfor, this is the lazy way out and only works if the display of the data does not differ -->
     <ng-container *ngFor="let column of table.columns" [matColumnDef]="column.id">
@@ -107,7 +122,8 @@ This is the datasource of the MultiSortTable, it works like the ` MatTableDataSo
       <td mat-cell *matCellDef="let row"> {{row[column.id]}} </td>
     </ng-container>
 
-    <!-- Or define your in a normal, more individuell way -->
+    <!-- Or define you in a normal, more individuell way -->
+    <!-- 
     <ng-container matColumnDef="id">
       <th mat-header-cell *matHeaderCellDef mat-multi-sort-header="id"> ID </th>
       <td mat-cell *matCellDef="let row"> {{row.id}} </td>
@@ -122,14 +138,17 @@ This is the datasource of the MultiSortTable, it works like the ` MatTableDataSo
       <th mat-header-cell *matHeaderCellDef mat-multi-sort-header="name"> Name </th>
       <td mat-cell *matCellDef="let row"> {{row.name}} </td>
     </ng-container>
+    -->
 
-  <tr mat-header-row *matHeaderRowDef="table.displayedColumns"></tr>
-  <tr mat-row *matRowDef="let row; columns: table.displayedColumns;">
-  </tr>
-</table>
-<mat-paginator [pageSize]="table.pageSize" [pageIndex]="table.pageIndex" [pageSizeOptions]="table.pageSizeOptions"
-  [length]="table.totalElements ? table.totalElements : 0" (page)="table.onPagnationEvent($event)" [disabled]="CLIENT_SIDE">
-</mat-paginator>
+    <tr mat-header-row *matHeaderRowDef="table.displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: table.displayedColumns;">
+    </tr>
+  </table>
+  <mat-paginator [pageSize]="table.pageSize" [pageIndex]="table.pageIndex" [pageSizeOptions]="table.pageSizeOptions"
+    [length]="table.totalElements ? table.totalElements : 0" (page)="table.onPagnationEvent($event)"
+    [disabled]="CLIENT_SIDE">
+  </mat-paginator>
+</div>
 ```
 ## Example code for the component.ts
 
@@ -166,8 +185,18 @@ export class AppComponent implements OnInit {
   initData() {
     this.table.dataSource = new MatMultiSortTableDataSource(this.sort, this.CLIENT_SIDE);
     if (this.CLIENT_SIDE) {
+      this.table.updateColumNames([
+        { id: 'id', name: 'Inter ID' },
+        { id: 'name', name: 'Name des Mitarbeiter' },
+        { id: 'progress', name: 'Fortschritt' }
+      ]);
       this.getOfflineData();
     } else {
+      this.table.updateColumNames([
+        { id: 'id', name: 'ID' },
+        { id: 'name', name: 'Name' },
+        { id: 'progress', name: 'Progess' }
+      ]);
       this.table.pageSize = 10;
       this.getData();
     }
